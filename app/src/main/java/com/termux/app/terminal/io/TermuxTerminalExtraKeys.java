@@ -88,7 +88,6 @@ public class TermuxTerminalExtraKeys extends TerminalExtraKeys {
             if(mTermuxTerminalViewClient != null)
                 mTermuxTerminalViewClient.onToggleSoftKeyboardRequest();
         } else if ("COPY".equals(key)) {
-            Logger.showToast(mActivity, "COPY_HANDLER=PASS", true);
             if (mTermuxTerminalViewClient != null)
                 mTermuxTerminalViewClient.copySessionTranscript();
         } else if ("DRAWER".equals(key)) {
