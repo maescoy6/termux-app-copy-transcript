@@ -671,15 +671,33 @@ public class TermuxTerminalViewClient extends TermuxTerminalViewClientBase {
 
 
 
-    public void shareSessionTranscript() {
-        TerminalSession session = mActivity.getCurrentSession();
-        if (session == null) return;
+    static String prepareSessionTranscriptTextForTransfer(String transcriptText) {
+        if (transcriptText == null) return null;
 
-        String transcriptText = ShellUtils.getTerminalSessionTranscriptText(session, false, true);
+        // Keep the newest complete lines, matching the existing Share transcript behavior.
+        return DataUtils.getTruncatedCommandOutput(transcriptText,
+            DataUtils.TRANSACTION_SIZE_LIMIT_IN_BYTES, false, true, false).trim();
+    }
+
+    private String getCurrentSessionTranscriptTextForTransfer() {
+        TerminalSession session = mActivity.getCurrentSession();
+        if (session == null) return null;
+
+        return prepareSessionTranscriptTextForTransfer(
+            ShellUtils.getTerminalSessionTranscriptText(session, false, true));
+    }
+
+    public void copySessionTranscript() {
+        String transcriptText = getCurrentSessionTranscriptTextForTransfer();
         if (transcriptText == null) return;
 
-        // See https://github.com/termux/termux-app/issues/1166.
-        transcriptText = DataUtils.getTruncatedCommandOutput(transcriptText, DataUtils.TRANSACTION_SIZE_LIMIT_IN_BYTES, false, true, false).trim();
+        ShareUtils.copyTextToClipboard(mActivity, transcriptText);
+    }
+
+    public void shareSessionTranscript() {
+        String transcriptText = getCurrentSessionTranscriptTextForTransfer();
+        if (transcriptText == null) return;
+
         ShareUtils.shareText(mActivity, mActivity.getString(R.string.title_share_transcript),
             transcriptText, mActivity.getString(R.string.title_share_transcript_with));
     }
